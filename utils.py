@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from torch.autograd import Variable
-import pandas as pd
+# import pandas as pd
 import matplotlib
 matplotlib.use('agg') 
 import matplotlib.pyplot as plt
@@ -11,8 +11,8 @@ def normal_std(x):
 
 class Data_utility(object):
     # train and valid is the ratio of training set and validation set. test = 1 - train - valid
-    def __init__(self, data, train, valid, cuda, horizon, window, steps, normalize = 2):
-        self.cuda = cuda
+    def __init__(self, data, train, valid, npu, horizon, window, steps, normalize = 2):
+        self.npu = npu
         self.P = window
         self.h = horizon
         self.pre_length = steps
@@ -47,8 +47,8 @@ class Data_utility(object):
         else:
             tmp = self.test[1] * self.scale.expand(self.test[1].size(0),self.m)
             
-        if self.cuda:
-            self.scale = self.scale.cuda()
+        if self.npu:
+            self.scale = self.scale.npu()
         self.scale = Variable(self.scale)
         
         self.rse = normal_std(tmp)
@@ -136,9 +136,9 @@ class Data_utility(object):
             excerpt = index[start_idx:end_idx]
             X = inputs[excerpt] 
             Y = targets[excerpt]
-            if (self.cuda):
-                X = X.cuda()
-                Y = Y.cuda()  
+            if (self.npu):
+                X = X.npu()
+                Y = Y.npu()  
             yield Variable(X), Variable(Y)
             start_idx += batch_size
 

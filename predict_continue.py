@@ -54,7 +54,7 @@ parser.add_argument('--log_interval', type=int, default=2000, metavar='N',
                     help='report interval')
 parser.add_argument('--save', type=str,  default='model/model.pt',
                     help='path to save the final model')
-parser.add_argument('--cuda', type=str, default=True)
+parser.add_argument('--npu', type=str, default=True)
 parser.add_argument('--optim', type=str, default='sgd')
 parser.add_argument('--lr', type=float, default=0.01)
 parser.add_argument('--horizon', type=int, default=1)
@@ -257,7 +257,7 @@ times = {"AIOps":"/2022-05-11 13:15:40","ETTh1":"/2022-05-14 14:50:19","ETTh2":"
 "ETTm2":"/2022-05-11 01:47:33","exchange_rate":"/2022-05-10 23:28:27","solar_AL":"/2022-05-10 10:26:01"}
 set_name = 'ETTh1'
 data = np.load('../MTS_data/'+set_name+'.npy')
-Data = Data_utility(data, 0.6, 0.2, args.cuda, args.horizon, args.window, args.steps, args.normalize); #SPLITS THE DATA IN TRAIN AND VALIDATION SET, ALONG WITH OTHER THINGS, SEE CODE FOR MORE
+Data = Data_utility(data, 0.6, 0.2, args.npu, args.horizon, args.window, args.steps, args.normalize); #SPLITS THE DATA IN TRAIN AND VALIDATION SET, ALONG WITH OTHER THINGS, SEE CODE FOR MORE
 print(Data.dat.shape);
 
 model = eval(args.model).Model(args, Data)
@@ -272,8 +272,8 @@ if not os.path.exists(figs_fold):
     os.mkdir(figs_fold)
 logs_file = open(figs_fold+'/log.txt','a')
 
-if args.cuda:
-    model.cuda()
+if args.npu:
+    model.npu()
 model.load_state_dict(torch.load(model_file+weights[set_name]))
 ##single-step output
 evaluate(Data, Data.test[0], Data.test[1], model,  args.batch_size, set_name,1001)

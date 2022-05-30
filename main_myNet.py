@@ -4,7 +4,7 @@ import time
 import resource
 import torch
 import torch.nn as nn
-from models import FC,myNet
+from models import myNet
 import numpy as np
 import importlib
 import matplotlib
@@ -177,7 +177,7 @@ parser.add_argument('--log_interval', type=int, default=2000, metavar='N',
                     help='report interval')
 parser.add_argument('--save', type=str,  default='model/model.pt',
                     help='path to save the final model')
-parser.add_argument('--cuda', type=str, default=True)
+parser.add_argument('--npu', type=str, default=True)
 parser.add_argument('--optim', type=str, default='sgd')
 parser.add_argument('--lr', type=float, default=0.0001)
 parser.add_argument('--horizon', type=int, default=1)
@@ -185,16 +185,16 @@ parser.add_argument('--L1Loss', type=bool, default=False)
 parser.add_argument('--normalize', type=int, default=2)
 parser.add_argument('--output_fun', type=str, default=None)
 args = parser.parse_args()
-args.cuda = args.gpu is not None
-if args.cuda:
-    torch.cuda.set_device(args.gpu)
+args.npu = args.gpu is not None
+if args.npu:
+    torch.npu.set_device(args.gpu)
 # Set the random seed manually for reproducibility.
 torch.manual_seed(args.seed)
-if torch.cuda.is_available():
-    if not args.cuda:
-        print("WARNING: You have a CUDA device, so you should probably run with --cuda")
+if torch.npu.is_available():
+    if not args.npu:
+        print("WARNING: You have a npu device, so you should probably run with --npu")
     else:
-        torch.cuda.manual_seed(args.seed)
+        torch.npu.manual_seed(args.seed)
 # set_names = ['exchange_rate','solar_AL','ETTh1','ETTh2','ETTm1','ETTm2','AIOps']
 # set_names = ['ETTh1','ETTh2','ETTm1','ETTm2']
 set_names = ['ETTh1']
@@ -206,11 +206,11 @@ for set_name in set_names:
     os.mkdir('./'+train_fold+'/save')
     os.mkdir('./'+train_fold+'/figs')
     data = np.load('./data/'+set_name+'.npy')
-    Data = Data_utility(data, 0.6, 0.2, args.cuda, args.horizon, args.window, args.steps, args.normalize)
+    Data = Data_utility(data, 0.6, 0.2, args.npu, args.horizon, args.window, args.steps, args.normalize)
     print(Data.rse)
     model = eval(args.model).Model(args, Data)
-    if args.cuda:
-        model.cuda()
+    if args.npu:
+        model.npu()
     nParams = sum([p.nelement() for p in model.parameters()])
     print('* number of parameters: %d' % nParams)
     if args.L1Loss:
@@ -219,10 +219,10 @@ for set_name in set_names:
         criterion = nn.MSELoss()
     evaluateL2 = nn.MSELoss()
     evaluateL1 = nn.L1Loss()
-    if args.cuda:
-        criterion = criterion.cuda()
-        evaluateL1 = evaluateL1.cuda()
-        evaluateL2 = evaluateL2.cuda()
+    if args.npu:
+        criterion = criterion.npu()
+        evaluateL1 = evaluateL1.npu()
+        evaluateL2 = evaluateL2.npu()
         
         
     best_val = 10000000

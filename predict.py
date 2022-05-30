@@ -53,7 +53,7 @@ parser.add_argument('--log_interval', type=int, default=2000, metavar='N',
                     help='report interval')
 parser.add_argument('--save', type=str,  default='model/model.pt',
                     help='path to save the final model')
-parser.add_argument('--cuda', type=str, default=True)
+parser.add_argument('--npu', type=str, default=True)
 parser.add_argument('--optim', type=str, default='sgd')
 parser.add_argument('--lr', type=float, default=0.01)
 parser.add_argument('--horizon', type=int, default=1)
@@ -218,7 +218,7 @@ def pred_plot_ensemble(data, X, Y, model, evaluateL2, evaluateL1, batch_size, fi
                 plt.close('all')
         print('finished:',preds)
 
-Data = Data_utility(args.data, 0.6, 0.2, args.cuda, args.horizon, args.window, args.steps, args.normalize); #SPLITS THE DATA IN TRAIN AND VALIDATION SET, ALONG WITH OTHER THINGS, SEE CODE FOR MORE
+Data = Data_utility(args.data, 0.6, 0.2, args.npu, args.horizon, args.window, args.steps, args.normalize); #SPLITS THE DATA IN TRAIN AND VALIDATION SET, ALONG WITH OTHER THINGS, SEE CODE FOR MORE
 print(Data.dat.shape);
 
 model = eval(args.model).Model(args, Data)
@@ -233,13 +233,13 @@ if not os.path.exists(figs_fold):
     os.mkdir(figs_fold)
 logs_file = open(figs_fold+'/log.txt','a')
 
-if args.cuda:
-    model.cuda()
+if args.npu:
+    model.npu()
 evaluateL2 = nn.MSELoss(size_average=False)
 evaluateL1 = nn.L1Loss(size_average=False)
-if args.cuda:
-    evaluateL1 = evaluateL1.cuda()
-    evaluateL2 = evaluateL2.cuda()
+if args.npu:
+    evaluateL1 = evaluateL1.npu()
+    evaluateL2 = evaluateL2.npu()
 # print(model)
 # model.load_state_dict(torch.load(model_file+"/save/3.pth"))
 # preds_list = [12,48,96,144,192,240,288]

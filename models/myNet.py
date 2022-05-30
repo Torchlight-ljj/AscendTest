@@ -6,7 +6,7 @@ import numpy as np
 class Model(nn.Module):
     def __init__(self, args, data):
         super(Model, self).__init__()
-        self.use_cuda = args.cuda
+        self.use_npu = args.npu
         self.P = args.window
         self.m = data.m
         self.hidC = int(args.hidCNN)
@@ -192,8 +192,8 @@ class SRlayer_(nn.Module):
     #     SR = torch.fft.ifftn(torch.exp(amp_sr+1j*phase))
     #     SR = torch.abs(SR)
     #     SR = self.gaussi(SR)
-    #     SR = (SR>torch.mean(SR))*torch.FloatTensor(1).cuda()
-    #     SR = torch.cuda.FloatTensor(SR)
+    #     SR = (SR>torch.mean(SR))*torch.FloatTensor(1).npu()
+    #     SR = torch.npu.FloatTensor(SR)
     #     return SR        
     def forward(self,x):
         out = []
