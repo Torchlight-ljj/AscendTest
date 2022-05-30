@@ -1,0 +1,2 @@
+# AscendTest
+NPUtest
